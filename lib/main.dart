@@ -42,7 +42,21 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       emailController.text = prefs.getString('email')?? "";
       passwordController.text = prefs.getString('password') ?? "";
+
+      if (emailController.text != "" && passwordController.text != ""){
+        rememberMe = true;
+      }
     });
+  }
+
+  Future<void> _clearProfile() async{
+    final prefs = await SharedPreferences.getInstance();
+        setState((){
+          prefs.remove('password');
+          prefs.remove('email');
+        }
+
+        );
   }
 
   Future<void> _saveProfile() async{
@@ -51,6 +65,21 @@ class _MyHomePageState extends State<MyHomePage> {
       prefs.setString('email', emailController.text);
       prefs.setString('password', passwordController.text);
     });
+  }
+
+
+  Future<void> _updateProfile() async{
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString('name', emailController.text);
+      prefs.setString('email', passwordController.text);
+    });
+  }
+
+  @override
+  void initState() {
+    _loadProfile();
+    super.initState();
   }
 
   @override
@@ -134,13 +163,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 ElevatedButton(onPressed: () {
                   if(_formKey.currentState!.validate()){
+
+
                     if(rememberMe){
+                      _updateProfile();
                       _saveProfile();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Profile info saved.'),
                         ),
                       );
+                    } else{
+                      _clearProfile();
                     }
 
                   }
